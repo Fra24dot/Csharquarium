@@ -12,7 +12,7 @@ namespace Csharquarium.Models.Classes.Feeding
         {
              
         }
-        protected Fish Prey { get; set; }
+        public Fish Prey { get; set; }
 
         public override void ToEat()
         {
