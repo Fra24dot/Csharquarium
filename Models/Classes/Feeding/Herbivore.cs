@@ -12,11 +12,11 @@ namespace Csharquarium.Models.Classes.Feeding
         {
         }
 
-        public SeaWeed SeaWeedPrey { get; set; }
+        public SeaWeed? SeaWeedPrey { get; set; }
 
         public override void ToEat()
         {
-
+            
             if (SeaWeedPrey == null) return;
             SeaWeedPrey.TakeDamage(2);
             Heal(3);

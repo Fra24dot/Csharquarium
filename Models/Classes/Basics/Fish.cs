@@ -20,5 +20,19 @@ namespace Csharquarium.Models.Classes.Basics
       
         }
         public abstract void ToEat();
+
+        public override void Act()
+        {
+            // perdre 1 PV de faim
+             TakeDamage(1);
+
+
+            // si PV <= 5 on mange
+            if (Pv <= 5)
+             {
+               ToEat(); 
+             }
+    
+        }
     }
 }

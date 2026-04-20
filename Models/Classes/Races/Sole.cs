@@ -12,11 +12,6 @@ namespace Csharquarium.Models.Classes.Races
         {
         }
 
-        //Méthode abstraite de LivingBeing implémentée
-
-        public override void Act()
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

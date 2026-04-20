@@ -9,13 +9,14 @@ using System.Xml.Linq;
 
 namespace Csharquarium
 {
-    public class Acquarium
+    public class Aquarium
     {
         private List<Fish> _fishes = new List<Fish>();
 
         private List<SeaWeed> _seaWeeds = new List<SeaWeed>();
         private Random _random = new Random();
-
+        private int _turn = 0;
+        
 
         public void AddFish(Fish fish)
         {
@@ -29,13 +30,21 @@ namespace Csharquarium
 
         }
 
-        public List<Fish> Get_fishes1()
+        public IReadOnlyList<Fish> Get_fishes()
         {
-            return _fishes;
+            return _fishes.AsReadOnly();
         }
 
         public void NextTurn()
         {
+            _turn++;
+
+            foreach (Fish fish in _fishes)
+            {
+                if (fish is Herbivore h) h.SeaWeedPrey = null;
+                else if (fish is Carnivore c) c.Prey = null;
+            }
+
             // tout le monde vieillit
             foreach (LivingBeing being in _fishes.Cast<LivingBeing>().Concat(_seaWeeds))
             {
@@ -46,9 +55,11 @@ namespace Csharquarium
             _fishes.RemoveAll(f => !f.IsAlive);
             _seaWeeds.RemoveAll(s => !s.IsAlive);
 
+
+            List<SeaWeed> availableSeaWeeds = new List<SeaWeed>(_seaWeeds);
             // assigner les proies
             foreach (Fish fish in _fishes)
-                AssignPrey(fish);
+                AssignPrey(fish, availableSeaWeeds);
 
 
             // chaque être vivant agit
@@ -62,21 +73,29 @@ namespace Csharquarium
             _fishes.RemoveAll(f => !f.IsAlive);
             _seaWeeds.RemoveAll(s => !s.IsAlive);
 
+            DisplayReport();
+
 
         }
 
-
+        
         // méthode pour assigner les proies
-        private void AssignPrey(Fish fish)
+        private void AssignPrey(Fish fish, List<SeaWeed> availableSeaWeeds)
         {
+
             if (fish is Herbivore herbivore)
             {
-                if (_seaWeeds.Count == 0) return;
-                int index = _random.Next(0, _seaWeeds.Count);
-                herbivore.SeaWeedPrey = _seaWeeds[index];
+                if (herbivore.Pv > 5) return;
+                if (availableSeaWeeds.Count == 0) return;
+                int index = _random.Next(0, availableSeaWeeds.Count);
+                herbivore.SeaWeedPrey = availableSeaWeeds[index];
+                Console.WriteLine($"Liste avant RemoveAt : {availableSeaWeeds.Count} algues");
+                availableSeaWeeds.RemoveAt(index);
+                Console.WriteLine($"Liste après RemoveAt : {availableSeaWeeds.Count} algues");
             }
             else if (fish is Carnivore carnivore)
             {
+                if (carnivore.Pv > 5) return;
                 List<Fish> eligiblePrey = _fishes
                     .Where(f => f != carnivore                       
                         && f.GetType() != carnivore.GetType())   
@@ -85,6 +104,20 @@ namespace Csharquarium
                 if (eligiblePrey.Count == 0) return; 
                 int index = _random.Next(0, eligiblePrey.Count);
                 carnivore.Prey = eligiblePrey[index];
+
+            }
+
+            
+        }
+
+        private void DisplayReport()
+        {
+            Console.WriteLine($"=== Tour {_turn} ===");
+            Console.WriteLine($"Algues vivantes : {_seaWeeds.Count}");
+            Console.WriteLine("Poissons :");
+            foreach (Fish fish in _fishes)
+            {
+                Console.WriteLine($"- {fish.Name} ({fish.GetType().Name}) - {fish.Gender} - {fish.Pv} PV");
             }
         }
     }
