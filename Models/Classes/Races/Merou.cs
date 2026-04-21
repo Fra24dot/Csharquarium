@@ -12,6 +12,9 @@ namespace Csharquarium.Models.Classes.Races
         public Merou(string name, Gender gender) : base(name, gender)
         {
         }
-
+        public override Fish GiveBirth(string name, Gender gender)
+        {
+            return new Merou(name, gender);
+        }
     }
 }

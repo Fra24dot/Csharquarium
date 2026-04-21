@@ -18,6 +18,7 @@ namespace Csharquarium
         private int _turn = 0;
         
 
+
         public void AddFish(Fish fish)
         {
             if (fish == null) return;
@@ -43,6 +44,7 @@ namespace Csharquarium
             {
                 if (fish is Herbivore h) h.SeaWeedPrey = null;
                 else if (fish is Carnivore c) c.Prey = null;
+                fish.Partner = null;
             }
 
             // tout le monde vieillit
@@ -59,7 +61,7 @@ namespace Csharquarium
             List<SeaWeed> availableSeaWeeds = new List<SeaWeed>(_seaWeeds);
             // assigner les proies
             foreach (Fish fish in _fishes)
-                AssignPrey(fish, availableSeaWeeds);
+                AssignTarget(fish, availableSeaWeeds);
 
 
             // chaque être vivant agit
@@ -68,6 +70,14 @@ namespace Csharquarium
             {
                 being.Act();
             }
+
+            List<Fish> babies = new List<Fish>();
+            foreach (Fish fish in _fishes)
+            {
+                Fish? baby = fish.TryReproduce();
+                if (baby != null) babies.Add(baby);
+            }
+            _fishes.AddRange(babies);
 
             // supprimer les morts à nouveau 
             _fishes.RemoveAll(f => !f.IsAlive);
@@ -80,7 +90,7 @@ namespace Csharquarium
 
         
         // méthode pour assigner les proies
-        private void AssignPrey(Fish fish, List<SeaWeed> availableSeaWeeds)
+        private void AssignTarget(Fish fish, List<SeaWeed> availableSeaWeeds)
         {
 
             if (fish is Herbivore herbivore)
@@ -107,7 +117,13 @@ namespace Csharquarium
 
             }
 
-            
+            Fish? partner = _fishes
+                .Where(f => f != fish && f.GetType() == fish.GetType())
+                .OrderBy(f => _random.Next())
+                .FirstOrDefault();
+
+            fish.Partner = partner;
+
         }
 
         private void DisplayReport()

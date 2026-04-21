@@ -1,4 +1,5 @@
-﻿using Csharquarium.Models.Classes.Feeding;
+﻿using Csharquarium.Models.Classes.Basics;
+using Csharquarium.Models.Classes.Feeding;
 using Csharquarium.Models.Enums;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,9 @@ namespace Csharquarium.Models.Classes.Races
         {
         }
 
-        
+        public override Fish GiveBirth(string name, Gender gender)
+        {
+            return new Carpe(name, gender);
+        }
     }
 }
