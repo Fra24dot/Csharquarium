@@ -11,6 +11,15 @@ namespace Csharquarium.Models.Entities
         public int Pv { get; private set; } = 10;
         public bool IsAlive => Pv > 0;
 
+        public LivingBeing(int initialPv) // constructeur avec PV personnalisé
+        {
+            Pv = initialPv;
+        }
+
+        public LivingBeing() // constructeur par défaut → PV = 10
+        {
+        }
+
         //méthodes
         public void TakeDamage(int amount) 
         {

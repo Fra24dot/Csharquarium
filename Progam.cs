@@ -47,3 +47,6 @@ for (int i = 0; i < 30; i++)
 {
     aquarium.NextTurn();
 }
+
+aquarium.Save(Path.Combine(Directory.GetCurrentDirectory(), "sauvegarde.json"));
+Console.WriteLine($"Sauvegardé dans : {Directory.GetCurrentDirectory()}");

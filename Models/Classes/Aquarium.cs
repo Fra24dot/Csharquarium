@@ -4,6 +4,7 @@ using Csharquarium.Models.Entities;
 using Csharquarium.Models.Enums;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Text.Json;
 using System.Xml.Linq;
 
 
@@ -79,6 +80,14 @@ namespace Csharquarium
             }
             _fishes.AddRange(babies);
 
+            List<SeaWeed> newSeaWeeds = new List<SeaWeed>();
+            foreach (SeaWeed seaWeed in _seaWeeds)
+            {
+                SeaWeed? newSeaWeed = seaWeed.TryReproduce();
+                if (newSeaWeed != null) newSeaWeeds.Add(newSeaWeed);
+            }
+            _seaWeeds.AddRange(newSeaWeeds);
+
             // supprimer les morts à nouveau 
             _fishes.RemoveAll(f => !f.IsAlive);
             _seaWeeds.RemoveAll(s => !s.IsAlive);
@@ -89,7 +98,7 @@ namespace Csharquarium
         }
 
         
-        // méthode pour assigner les proies
+        // méthode pour assigner les targets
         private void AssignTarget(Fish fish, List<SeaWeed> availableSeaWeeds)
         {
 
@@ -99,9 +108,8 @@ namespace Csharquarium
                 if (availableSeaWeeds.Count == 0) return;
                 int index = _random.Next(0, availableSeaWeeds.Count);
                 herbivore.SeaWeedPrey = availableSeaWeeds[index];
-                Console.WriteLine($"Liste avant RemoveAt : {availableSeaWeeds.Count} algues");
                 availableSeaWeeds.RemoveAt(index);
-                Console.WriteLine($"Liste après RemoveAt : {availableSeaWeeds.Count} algues");
+                
             }
             else if (fish is Carnivore carnivore)
             {
@@ -125,7 +133,7 @@ namespace Csharquarium
             fish.Partner = partner;
 
         }
-
+        //montrer le report à chaque tour
         private void DisplayReport()
         {
             Console.WriteLine($"=== Tour {_turn} ===");
@@ -135,6 +143,29 @@ namespace Csharquarium
             {
                 Console.WriteLine($"- {fish.Name} ({fish.GetType().Name}) - {fish.Gender} - {fish.Pv} PV");
             }
+        }
+
+        public void Save(string filePath)
+        {
+            var data = new
+            {
+                Turn = _turn,
+                Fishes = _fishes.Select(f => new {
+                    Name = f.Name,
+                    Race = f.GetType().Name,
+                    Gender = f.Gender.ToString(),
+                    Age = f.Age,
+                    Pv = f.Pv
+                }),
+
+                SeaWeeds = _seaWeeds.Select(s => new { 
+                    Age = s.Age,
+                    Pv = s.Pv
+                })
+            };
+
+            string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(filePath, json);
         }
     }
 }
